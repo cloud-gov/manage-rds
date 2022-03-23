@@ -4,9 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+invoke = "*"
+click = "*"
 
 [dev-packages]
 pytest = "*"
+pyinstaller = "*"
 
 [requires]
 python_version = "3.9"

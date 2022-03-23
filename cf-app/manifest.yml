@@ -1,0 +1,8 @@
+---
+applications:
+  - name: ssh-app
+    buildpack: python_buildpack
+    stack: cflinuxfs3
+    command: (echo SUCCESS || echo FAIL) && sleep infinity
+    no-route: true
+    health-check-type: none
