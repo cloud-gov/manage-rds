@@ -1,9 +1,9 @@
 from re import sub
 import subprocess
 import itertools,sys
-from typing import Tuple
+from typing import Tuple, Union
 
-def run_sync(cmd: str ) -> Tuple[int, str, str]:
+def run_sync(cmd: Union[str,list[str] ]) -> Tuple[int, str, str]:
     spinner = itertools.cycle(['-', '/', '|', '\\'])
     OKGREEN = '\033[92m'
     FAIL = '\033[91m'
@@ -28,6 +28,5 @@ def run_sync(cmd: str ) -> Tuple[int, str, str]:
             result = proc.stdout.read().strip()
         return code, result, status
 
-def run_async(cmd: str) -> subprocess.Popen:
-    process= subprocess.Popen(cmd, stderr=subprocess.DEVNULL, stdout=subprocess.DEVNULL, )
-    return process
+def run_async(cmd: str, shell: bool=False) -> subprocess.Popen:
+    return subprocess.Popen(cmd, shell=shell, stderr=subprocess.PIPE, stdout=subprocess.PIPE, stdin=subprocess.PIPE)

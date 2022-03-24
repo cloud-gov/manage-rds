@@ -1,7 +1,10 @@
-import subprocess
+
+import time
 import os
+import signal
 import click
 import json
+from typing import Union
 from lib.cmds.utils import run_sync,run_async
 
 def push_app(app_name: str, manifest: str="manifest.yml") -> None:
@@ -69,22 +72,25 @@ def get_service_key(key_name: str, service_name: str) -> dict:
     cred_str = "\n".join(result.split("\n")[2:])
     return json.loads(cred_str)
 
-def create_ssh_tunnel(app_name: str, src_port: int, dst_port: int, host: str) -> subprocess.Popen:
+def create_ssh_tunnel(app_name: str, src_port: int, dst_port: int, host: str) -> int:
     click.echo("Starting SSH Tunnel via App")
+    click.echo("Processing... ", nl=False) 
     tunnel = f"{src_port}:{host}:{dst_port}"
-    cmd = ["cf", "ssh", "-L", tunnel , app_name ]
-    proc = run_async(cmd)
-    if proc.poll() == None:
-        click.echo(f"SSH Tunnel Running with PID {proc.pid}")
-        click.echo(click.style("Command Succeeded!\n", fg='green'))
+    # cmd = ["cf", "ssh", app_name ,"-T","-L", tunnel ]
+    cmd = f"cf ssh {app_name} -N -T -L {tunnel} &"
+    proc = run_async(cmd, shell=True)
+    time.sleep(5) # wait for tunnel to stabilize
+    if proc.poll() == 0:
+        click.secho("Command Succeeded!\n", fg='bright_green')
+        click.echo(f"SSH Tunnel Running with PID {proc.pid+1}")
     else:
-        click.echo(click.style("Command Failed!\n", fg='red'))
+        click.secho("Command Failed!\n", fg='red')
         raise click.ClickException(proc.stderr.read())
-    return proc
+    return proc.pid+1
 
-def delete_ssh_tunnel(process: subprocess.Popen) -> None:
-    click.echo(f"Closing SSH Tunnel with PID of {process.pid}")
-    process.kill()
-    code=process.poll()
-    click.echo(f"SSH Tunnel closed with Code: {code}") 
-    click.echo(click.style("Command Succeeded!\n", fg='green'))
+def delete_ssh_tunnel(pid: int) -> None:
+    click.echo(f"Closing SSH Tunnel with PID of {pid}")
+    click.echo("Processing.... ", nl=False)
+    os.kill(pid,signal.SIGKILL)
+    click.secho("Command Succeeded!\n", fg='bright_green')
+    click.echo(f"SSH Tunnel with PID of {pid} closed")
