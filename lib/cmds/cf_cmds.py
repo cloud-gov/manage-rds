@@ -4,7 +4,6 @@ import os
 import signal
 import click
 import json
-from typing import Union
 from lib.cmds.utils import run_sync,run_async
 
 def push_app(app_name: str, manifest: str="manifest.yml") -> None:

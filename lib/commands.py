@@ -1,5 +1,3 @@
-
-from hashlib import new
 from typing import Tuple, Union
 from lib.cmds import cf_cmds as cf
 from lib.cmds.engine import Engine
