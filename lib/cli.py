@@ -11,6 +11,21 @@ def main():
     """
     pass
 
+## CHECK
+@click.option("-e","--engine", 
+    type=click.Choice(['pgsql','mysql','mssql'],
+    case_sensitive=False),
+    default="pgsql", 
+    help="Database engine type",
+    show_default=True
+)
+@main.command(context_settings=CONTEXT_SETTINGS)
+def check(engine):
+    '''
+        Check local system for required utilities for a DB engine.
+    '''
+    commands.check(engine)
+    
 ## SETUP
 @main.command(context_settings=CONTEXT_SETTINGS)
 @click.option("-k","--key",
@@ -110,14 +125,19 @@ def cleanup(service, pid, key, app, ):
     help="use this app name",
     show_default=True
 )
+@click.option("--force-options",
+    type=bool, default=False,
+    help="override engine default options with yours",
+    show_default=True
+)
 @click.argument("source")
-def backup(source, engine, backup_file, options, 
+def backup(source, engine, backup_file, options, force_options,
     key_name, app_name, setup, cleanup):
     """
         Backup a SOURCE aws-rds service instance 
     """
     click.echo(f"Backing up database: {source} to file: {backup_file}")
-    commands.backup(source, engine, backup_file, options, 
+    commands.backup(source, engine, backup_file, options, force_options,
         service_key=key_name, app_name=app_name,
         do_setup=setup, do_teardown=cleanup)
 
@@ -159,14 +179,19 @@ def backup(source, engine, backup_file, options,
     help="use this app name",
     show_default=True
 )
+@click.option("--force-options",
+    type=bool, default=False,
+    help="override engine default options with yours",
+    show_default=True
+)
 @click.argument("destination")
-def restore(destination, engine, backup_file, options, key_name, 
+def restore(destination, engine, backup_file, options, force_options, key_name, 
     app_name, setup, cleanup):
     """
         Restore to a rds service instance from a backup file
     """
     click.echo(f"Restoring the database from file: {backup_file}")
-    commands.restore(destination, engine, backup_file, options, 
+    commands.restore(destination, engine, backup_file, options, force_options,
         service_key=key_name, app_name=app_name,
         do_setup=setup, do_cleanup=cleanup)
 
@@ -184,19 +209,13 @@ def restore(destination, engine, backup_file, options, key_name,
     help="Output file name",
     show_default=True
 )
-@click.option("-o","--options",
+@click.option("-b","--boptions",
     type=str,
     help="cli options for the backup client",
 )
-@click.option("-s","--setup",
-    type=bool, default=True,
-    help="peform app/tunnel setup",
-    show_default=True
-)
-@click.option("-c","--cleanup",
-    type=bool, default=True,
-    help="peform app/tunnel teardown",
-    show_default=True
+@click.option("-r","--roptions",
+    type=str,
+    help="cli options for the restore client",
 )
 @click.option("-k","--key-name",
     type=str, default="key",
@@ -208,15 +227,20 @@ def restore(destination, engine, backup_file, options, key_name,
     help="use this app name",
     show_default=True
 )
+@click.option("--force-options",
+    type=bool, default=False,
+    help="override engine default options with yours",
+    show_default=True
+)
 @click.argument("source")
 @click.argument("destination")
-def migrate(source, destination, engine, backup_file, options, key_name, app_name, setup, cleanup):
+def clone(source, destination, engine, backup_file, boptions, roptions, force_options, key_name, app_name):
     """
         Migrate data from one rds service to another rds service instance
     """
     click.echo(f"Cloning the database: {source} to {destination}")
-    commands.clone()
-
+    commands.clone(source, destination, engine, backup_file, boptions, roptions, force_options, key_name, app_name, )
+    click.echo(f"Cloning complete!")
 
 if __name__ == '__main__':
     main()

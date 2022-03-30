@@ -92,4 +92,21 @@ class PgSql(Engine) :
         click.echo(status)
         click.echo("Restore complete\n")    
 
+    def default_options(self, options: str, ignore: bool=False) -> str:
+        if ignore:
+            return options
+        opts = options.split()
+        # should remove owner
+        if not any( x in [ "-O","--no-owner"] for x in opts):
+            opts.append("-O")
+        # should remove objects before creating
+        if not any( x in ["-c", "--clean"] for x in opts):
+            opts.append("-c")
+        # and use if-exists
+        if "--if-exists" not in opts:
+            opts.append("--if-exists")
+        # dont create DB broker already did that
+        if "-C" in opts:
+            opts.remove("-C")
 
+        return " ".join(opts)

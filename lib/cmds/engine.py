@@ -18,3 +18,7 @@ class Engine(ABC):
     @abstractmethod
     def credentials(self, service_name: str, key_name: str='key') -> dict:
         pass
+
+    @abstractmethod
+    def default_options(self, options: str, ignore: bool=False) -> str:
+        pass

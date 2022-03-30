@@ -17,6 +17,10 @@ def get_engine_handler(engine_type: str) -> Engine:
     else:
         raise click.ClickException(f"Unsupported Database Engine: {engine_type}")     
 
+def check(engine_name: str="pgsql") -> None:
+    engine = get_engine_handler(engine_name)
+    engine.prerequisites()
+
 def setup(service_name: str, engine: Union[Engine, str], app_name: str='ssh-app', 
     key_name: str='key' ) -> Tuple[dict , int]:
     if isinstance(engine, str):
@@ -38,7 +42,7 @@ def cleanup(service_name: str, pid: int=0,
     cf.delete_app( app_name )
 
 def backup(service_name: str, engine_type: str="pgsql", 
-    backup_file: str="db_backup.sql", options: str="",
+    backup_file: str="db_backup.sql", options: str="", ignore_defaults: bool=False,
     service_key: str="key", app_name: str="ssh-app",
     do_setup: bool=True, do_teardown: bool=True) -> None:
 
@@ -59,6 +63,7 @@ def backup(service_name: str, engine_type: str="pgsql",
         click.echo("Credentials ready\n") 
 
     click.echo("Performing backup")
+    options = engine.default_options(options, ignore_defaults)
     engine.backup(service_name, creds, backup_file, options)
     #backup_db(service_name, creds, engine_type, backup_file, options)
     click.echo("Backup Completed\n")
@@ -71,13 +76,13 @@ def backup(service_name: str, engine_type: str="pgsql",
     click.echo(f"Backup file of database can be found in {backup_file}")
 
 def restore(service_name: str, engine_type: str="pgsql", 
-    backup_file: str="db_backup.sql", options: str="",
+    backup_file: str="db_backup.sql", options: str="", ignore_defaults: bool=False,
     service_key: str="key", app_name: str="ssh-app",
     do_setup: bool=True, do_cleanup: bool=True) -> None:
 
     engine = get_engine_handler(engine_type)
 
-    click.echo("Checking Prerequisites for ")
+    click.echo(f"Checking Prerequisites for {engine_type}")
     engine.prerequisites()
     click.echo("Prerequisites present\n")
     # either push app and create key, or reuse existing setup and key
@@ -92,6 +97,7 @@ def restore(service_name: str, engine_type: str="pgsql",
         click.echo("Credentials ready\n") 
 
     click.echo("Performing Restoration")
+    options = engine.default_options(options, ignore_defaults)
     engine.restore(service_name, creds, backup_file, options)
     click.echo("Restoration Completed\n")
 
@@ -102,8 +108,9 @@ def restore(service_name: str, engine_type: str="pgsql",
 
 
 def clone(src_service: str, dst_service: str, engine_type: str="pgsql", 
-    backup_file: str="db_backup.sql", type: str='sql', backup_options: str="",
-    restore_options: str="", service_key: str="key", app_name: str="ssh-app" ) -> None:
+    backup_file: str="db_backup.sql", backup_options: str="",
+    restore_options: str="", ignore_defaults: bool=False,
+    service_key: str="key", app_name: str="ssh-app" ) -> None:
     
     engine = get_engine_handler(engine_type)
 
@@ -117,6 +124,7 @@ def clone(src_service: str, dst_service: str, engine_type: str="pgsql",
     click.echo("Setup complete\n")
 
     click.echo(f"Performing backup of {src_service}")
+    backup_options = engine.default_options(backup_options, ignore_defaults)
     engine.backup(src_service, creds, backup_file, backup_options)
     click.echo("Backup Completed\n")
 
@@ -130,7 +138,8 @@ def clone(src_service: str, dst_service: str, engine_type: str="pgsql",
     click.echo("Setup complete\n")
 
     click.echo(f"Performing Restoration to {dst_service}")
-    engine.restore(dst_service, creds, type, backup_file, restore_options)
+    restore_options = engine.default_options(restore_options, ignore_defaults)
+    engine.restore(dst_service, creds, backup_file, restore_options)
     click.echo("Restoration Completed\n")
 
     click.echo(f"Cleaning up SSH for {dst_service}")
