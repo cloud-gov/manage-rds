@@ -95,7 +95,10 @@ class PgSql(Engine) :
     def default_options(self, options: str, ignore: bool=False) -> str:
         if ignore:
             return options
-        opts = options.split()
+        if options is not None:
+            opts = options.split()
+        else:
+            opts = list()
         # should remove owner
         if not any( x in [ "-O","--no-owner"] for x in opts):
             opts.append("-O")

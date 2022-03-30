@@ -1,6 +1,7 @@
 
 import time
 import os
+import sys
 import signal
 import click
 import json
@@ -8,11 +9,12 @@ from lib.cmds.utils import run_sync,run_async
 
 def push_app(app_name: str, manifest: str="manifest.yml") -> None:
     click.echo("Pushing App to space")
-    cwd = os.getcwd()
-    os.chdir("./cf-app")
+    base_path = getattr(sys, '_MEIPASS', os.getcwd())
+    app_dir = os.path.join(base_path, "cf-app")
+    os.chdir(app_dir)
     cmd = ["cf", "push", app_name, '-f', manifest]
     code, result, status = run_sync(cmd)
-    os.chdir(cwd)
+    os.chdir(base_path)
     if code != 0:
         click.echo(status)
         raise click.ClickException(result)
