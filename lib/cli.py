@@ -9,7 +9,6 @@ def main():
     """
     Application to a backup, restore, or clone a rds service instance from the aws-broker
     """
-    pass
 
 
 ## CHECK
@@ -74,7 +73,7 @@ def cleanup(
     """
     click.echo(f"Cleaning up the app, key and tunnel for {service}")
     commands.cleanup(service, pid, app, key)
-    click.echo(f"Clean up complete")
+    click.echo("Clean up complete")
 
 
 ## BACKUP
@@ -339,7 +338,7 @@ def clone(
         key_name,
         app_name,
     )
-    click.echo(f"Cloning complete!")
+    click.echo("Cloning complete!")
 
 
 if __name__ == "__main__":
