@@ -1,10 +1,11 @@
 from typing import Tuple, Union
+import click
+
 from lib.cmds import cf_cmds as cf
 from lib.cmds.engine import Engine
 from lib.cmds.pgsql import PgSql
 from lib.cmds.mysql import MySql
 from lib.cmds.mssql import MsSql
-import click
 
 
 def get_engine_handler(engine_type: str) -> Engine:
@@ -12,39 +13,57 @@ def get_engine_handler(engine_type: str) -> Engine:
         return PgSql()
     elif engine_type == "mysql":
         return MySql()
-    elif engine_type == 'mssql':
+    elif engine_type == "mssql":
         return MsSql()
     else:
-        raise click.ClickException(f"Unsupported Database Engine: {engine_type}")     
+        raise click.ClickException(f"Unsupported Database Engine: {engine_type}")
 
-def check(engine_name: str="pgsql") -> None:
+
+def check(engine_name: str = "pgsql") -> None:
     engine = get_engine_handler(engine_name)
     engine.prerequisites()
 
-def setup(service_name: str, engine: Union[Engine, str], app_name: str='ssh-app', 
-    key_name: str='key' ) -> Tuple[dict , int]:
+
+def setup(
+    service_name: str,
+    engine: Union[Engine, str],
+    app_name: str = "ssh-app",
+    key_name: str = "key",
+) -> Tuple[dict, int]:
+
     if isinstance(engine, str):
         engine = get_engine_handler(engine)
     cf.push_app(app_name)
     cf.enable_ssh(app_name)
     creds = engine.credentials(service_name, key_name)
-    local_port = creds.get('local_port')
-    host = creds.get('host')
-    remote_port = int(creds.get('port'))
+    local_port = creds.get("local_port")
+    host = creds.get("host")
+    remote_port = int(creds.get("port"))
     pid = cf.create_ssh_tunnel(app_name, local_port, remote_port, host)
-    return (creds,pid)
+    return (creds, pid)
 
-def cleanup(service_name: str, pid: int=0, 
-    app_name: str='ssh-app', key_name: str='key' ) -> None:
-    if pid !=0:
+
+def cleanup(
+    service_name: str, pid: int = 0, app_name: str = "ssh-app", key_name: str = "key"
+) -> None:
+
+    if pid != 0:
         cf.delete_ssh_tunnel(pid)
     cf.delete_service_key(key_name, service_name)
-    cf.delete_app( app_name )
+    cf.delete_app(app_name)
 
-def backup(service_name: str, engine_type: str="pgsql", 
-    backup_file: str="db_backup.sql", options: str="", ignore_defaults: bool=False,
-    service_key: str="key", app_name: str="ssh-app",
-    do_setup: bool=True, do_teardown: bool=True) -> None:
+
+def backup(
+    service_name: str,
+    engine_type: str = "pgsql",
+    backup_file: str = "db_backup.sql",
+    options: str = "",
+    ignore_defaults: bool = False,
+    service_key: str = "key",
+    app_name: str = "ssh-app",
+    do_setup: bool = True,
+    do_teardown: bool = True,
+) -> None:
 
     engine = get_engine_handler(engine_type)
 
@@ -57,28 +76,36 @@ def backup(service_name: str, engine_type: str="pgsql",
         creds, pid = setup(service_name, engine, app_name, service_key)
         click.echo("Config complete\n")
     else:
-        click.echo("Retrieving credentials for Database") 
+        click.echo("Retrieving credentials for Database")
         creds = engine.credentials(service_name, service_key)
-        pid=0
-        click.echo("Credentials ready\n") 
+        pid = 0
+        click.echo("Credentials ready\n")
 
     click.echo("Performing backup")
     options = engine.default_options(options, ignore_defaults)
     engine.backup(service_name, creds, backup_file, options)
-    #backup_db(service_name, creds, engine_type, backup_file, options)
+    # backup_db(service_name, creds, engine_type, backup_file, options)
     click.echo("Backup Completed\n")
 
     if do_teardown:
         click.echo("Removing config for SSH to Database")
-        cleanup(service_name,pid)
+        cleanup(service_name, pid)
         click.echo("Removal complete\n")
 
     click.echo(f"Backup file of database can be found in {backup_file}")
 
-def restore(service_name: str, engine_type: str="pgsql", 
-    backup_file: str="db_backup.sql", options: str="", ignore_defaults: bool=False,
-    service_key: str="key", app_name: str="ssh-app",
-    do_setup: bool=True, do_cleanup: bool=True) -> None:
+
+def restore(
+    service_name: str,
+    engine_type: str = "pgsql",
+    backup_file: str = "db_backup.sql",
+    options: str = "",
+    ignore_defaults: bool = False,
+    service_key: str = "key",
+    app_name: str = "ssh-app",
+    do_setup: bool = True,
+    do_cleanup: bool = True,
+) -> None:
 
     engine = get_engine_handler(engine_type)
 
@@ -91,10 +118,10 @@ def restore(service_name: str, engine_type: str="pgsql",
         creds, pid = setup(service_name, engine, app_name, service_key)
         click.echo("Config complete\n")
     else:
-        click.echo("Retrieving credentials for Database") 
+        click.echo("Retrieving credentials for Database")
         creds = engine.credentials(service_name, service_key)
-        pid =0
-        click.echo("Credentials ready\n") 
+        pid = 0
+        click.echo("Credentials ready\n")
 
     click.echo("Performing Restoration")
     options = engine.default_options(options, ignore_defaults)
@@ -103,15 +130,22 @@ def restore(service_name: str, engine_type: str="pgsql",
 
     if do_cleanup:
         click.echo("Removing config for SSH to Database")
-        cleanup(service_name,pid)
+        cleanup(service_name, pid)
         click.echo("Removal complete\n")
 
 
-def clone(src_service: str, dst_service: str, engine_type: str="pgsql", 
-    backup_file: str="db_backup.sql", backup_options: str="",
-    restore_options: str="", ignore_defaults: bool=False,
-    service_key: str="key", app_name: str="ssh-app" ) -> None:
-    
+def clone(
+    src_service: str,
+    dst_service: str,
+    engine_type: str = "pgsql",
+    backup_file: str = "db_backup.sql",
+    backup_options: str = "",
+    restore_options: str = "",
+    ignore_defaults: bool = False,
+    service_key: str = "key",
+    app_name: str = "ssh-app",
+) -> None:
+
     engine = get_engine_handler(engine_type)
 
     click.echo(f"Checking Prerequisites for {engine_type}")
