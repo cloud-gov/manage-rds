@@ -1,0 +1,64 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+     - 'v*'
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install -r requirements.txt
+    - name: Build with pyinstaller
+      run: pyinstaller --onefile -n cg-manage-rds --add-data ./cf-app:./cf-app cli.py
+    - uses: actions/upload-artifact@v3
+      with:
+        name: linux
+        path: dist/cg-manage-rds
+  
+  build-mac:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install -r requirements.txt
+    - name: Build with pyinstaller
+      run: pyinstaller --onefile -n cg-manage-rds --add-data ./cf-app:./cf-app cli.py
+    - uses: actions/upload-artifact@v3
+      with:
+        name: macos
+        path: dist/cg-manage-rds
+
+  release:
+    needs: 
+    - build-linux
+    - build-mac
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get Artifacts
+      uses: actions/download-artifact@v3
+      with:
+        path: dist
+    - name: Make Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          dist/linux/cg-manage-rds
+          dist/macos/cg-manage-rds
