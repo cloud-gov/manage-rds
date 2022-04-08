@@ -1,5 +1,6 @@
 name: Build and Release
-
+# will create linux and macos distributables and a release for them 
+# when a new tag is pushed. 
 on:
   push:
     tags:

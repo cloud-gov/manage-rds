@@ -1,5 +1,5 @@
 import click
-from lib import commands
+from cg_manage_rds import commands
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "-?", "--help"])
 
@@ -7,25 +7,24 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "-?", "--help"])
 @click.group(context_settings=CONTEXT_SETTINGS)
 def main():
     """
-    Application to a backup, restore, or clone a rds service instance from the aws-broker
+    Application to a export, import, or clone a rds service instance from the aws-broker
     """
-
 
 ## CHECK
 @click.option(
     "-e",
     "--engine",
-    type=click.Choice(["pgsql", "mysql", "mssql"], case_sensitive=False),
-    default="pgsql",
+    type=click.Choice(["pgsql", "mysql"], case_sensitive=False),
     help="Database engine type",
     show_default=True,
 )
 @main.command(context_settings=CONTEXT_SETTINGS)
-def check(engine):
+@click.argument("service")
+def check(engine, service):
     """
     Check local system for required utilities for a DB engine.
     """
-    commands.check(engine)
+    commands.check(service, engine)
 
 
 ## SETUP
@@ -35,8 +34,7 @@ def check(engine):
 @click.option(
     "-e",
     "--engine",
-    type=click.Choice(["pgsql", "mysql", "mssql"], case_sensitive=False),
-    default="pgsql",
+    type=click.Choice(["pgsql", "mysql"], case_sensitive=False),
     help="Database engine type",
     show_default=True,
 )
@@ -46,11 +44,12 @@ def setup(service, key, app, engine):
     Setup app, key, and tunnel to a aws-rds service instance
 
     SERVICE name of the service instance
+    
     """
     click.echo(f"Setting up key, app and tunnel for {service}")
     creds, _ = commands.setup(service, engine, app, key)
     click.echo(f"key, app and tunnel for {service} setup!")
-    click.echo(f"You can connect to {service} with this uri:")
+    click.echo(f"You can connect to {service} using this:")
     click.secho(creds.get("uri"), fg="yellow")
 
 
@@ -76,19 +75,18 @@ def cleanup(
     click.echo("Clean up complete")
 
 
-## BACKUP
-@main.command(context_settings=CONTEXT_SETTINGS)
+## Export
+@main.command("export",context_settings=CONTEXT_SETTINGS)
 @click.option(
     "-e",
     "--engine",
-    type=click.Choice(["pgsql", "mysql", "mssql"], case_sensitive=False),
-    default="pgsql",
+    type=click.Choice(["pgsql", "mysql"], case_sensitive=False),
     help="Database engine type",
     show_default=True,
 )
 @click.option(
     "-f",
-    "--backup-file",
+    "--output-file",
     default="db_backup.sql",
     help="Output file name",
     show_default=True,
@@ -139,10 +137,10 @@ def cleanup(
     show_default=True,
 )
 @click.argument("source")
-def backup(
+def export_db(
     source,
     engine,
-    backup_file,
+    output_file,
     options,
     force_options,
     key_name,
@@ -151,13 +149,22 @@ def backup(
     cleanup,
 ):
     """
-    Backup a SOURCE aws-rds service instance
+        Export data and/or schema from SOURCE aws-rds service instance
+
+        By default export will not preserve ownership,
+        and will attempt to create objects if they do not exist.
+
+        These defaults can be overridden with the --force-options flag.
+
+        You can insert additional options and flags to the clients
+        using -o --options.
+
     """
-    click.echo(f"Backing up database: {source} to file: {backup_file}")
-    commands.backup(
+    click.echo(f"Exporting {source} to file: {output_file}")
+    commands.export_from_svc(
         source,
         engine,
-        backup_file,
+        output_file,
         options,
         force_options,
         service_key=key_name,
@@ -167,21 +174,20 @@ def backup(
     )
 
 
-## RESTORE
-@main.command(context_settings=CONTEXT_SETTINGS)
+## Import
+@main.command("import",context_settings=CONTEXT_SETTINGS)
 @click.option(
     "-e",
     "--engine",
-    type=click.Choice(["pgsql", "mysql", "mssql"], case_sensitive=False),
-    default="pgsql",
+    type=click.Choice(["pgsql", "mysql"], case_sensitive=False),
     help="Database engine type",
     show_default=True,
 )
 @click.option(
     "-f",
-    "--backup-file",
+    "--input-file",
     default="db_backup.sql",
-    help="Output file name",
+    help="Input file name",
     show_default=True,
 )
 @click.option(
@@ -230,10 +236,10 @@ def backup(
     show_default=True,
 )
 @click.argument("destination")
-def restore(
+def import_db(
     destination,
     engine,
-    backup_file,
+    input_file,
     options,
     force_options,
     key_name,
@@ -242,13 +248,21 @@ def restore(
     cleanup,
 ):
     """
-    Restore to a rds service instance from a backup file
+        Import data and/or schema to DESTINATION rds service instance
+
+        By default import will not preserve ownership,
+        and will attempt to create objects if they do not exist.
+
+        These defaults can be overridden with the --force-options flag.
+
+        You can insert additional options and flags to the clients
+        using -o --options.
     """
-    click.echo(f"Restoring the database from file: {backup_file}")
-    commands.restore(
+    click.echo(f"Importing to {destination} from file: {input_file}")
+    commands.import_to_svc(
         destination,
         engine,
-        backup_file,
+        input_file,
         options,
         force_options,
         service_key=key_name,
@@ -263,14 +277,13 @@ def restore(
 @click.option(
     "-e",
     "--engine",
-    type=click.Choice(["pgsql", "mysql", "mssql"], case_sensitive=False),
-    default="pgsql",
+    type=click.Choice(["pgsql", "mysql"], case_sensitive=False),
     help="Database engine type",
     show_default=True,
 )
 @click.option(
     "-f",
-    "--backup-file",
+    "--output-file",
     default="db_backup.sql",
     help="Output file name",
     show_default=True,
@@ -316,7 +329,7 @@ def clone(
     source,
     destination,
     engine,
-    backup_file,
+    output_file,
     boptions,
     roptions,
     force_options,
@@ -324,14 +337,23 @@ def clone(
     app_name,
 ):
     """
-    Migrate data from one rds service to another rds service instance
+        Migrate data from one rds service to another rds service instance.
+
+        By default export and import will not preserve ownership,
+        and will attempt to create objects if they do not exist.
+
+        These defaults can be overridden with the --force-options flag.
+
+        You can insert additional options and flags to the clients
+        with either -b --boptions or -r --roptions.
+
     """
     click.echo(f"Cloning the database: {source} to {destination}")
     commands.clone(
         source,
         destination,
         engine,
-        backup_file,
+        output_file,
         boptions,
         roptions,
         force_options,

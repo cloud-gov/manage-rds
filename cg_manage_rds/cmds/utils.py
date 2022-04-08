@@ -1,6 +1,7 @@
-from re import sub
+
 import subprocess
-import itertools, sys
+import itertools
+import sys
 from typing import Tuple, Union
 
 

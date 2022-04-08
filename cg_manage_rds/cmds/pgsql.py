@@ -2,27 +2,12 @@ from os import path
 import tarfile
 import click
 
-from lib.cmds.engine import Engine
-from lib.cmds.utils import run_sync
-from lib.cmds import cf_cmds as cf
+from cg_manage_rds.cmds.engine import Engine
+from cg_manage_rds.cmds.utils import run_sync
+from cg_manage_rds.cmds import cf_cmds as cf
 
 
 class PgSql(Engine):
-    def is_pgcustom(self, file_name: str) -> bool:
-        with open(file_name, "rb") as fd:
-            head = fd.read(5)
-            if head == b"PGDMP":
-                return True
-        return False
-
-    def use_psql(self, file_name: str) -> bool:
-        if path.isdir(file_name):
-            return False
-        if tarfile.is_tarfile(file_name):
-            return False
-        if self.is_pgcustom(file_name):
-            return False
-        return True
 
     def credentials(self, service_name: str, key_name: str = "key") -> dict:
         cf.create_service_key(key_name, service_name)
@@ -62,10 +47,10 @@ class PgSql(Engine):
             raise click.ClickException(errstr)
         click.echo(click.style("\npg_restore found!", fg="bright_green"))
 
-    def backup(
-        self, db_name: str, creds: dict, backup_file: str, options: str = None
+    def export_svc(
+        self, svc_name: str, creds: dict, backup_file: str, options: str = None
     ) -> None:
-        click.echo(f"Backing up Postgres DB: {db_name}")
+        click.echo(f"Exporting Postgres DB: {svc_name}")
         if options is not None:
             opts = options.split()
         else:
@@ -73,41 +58,47 @@ class PgSql(Engine):
 
         cmd = ["pg_dump", "-d", creds.get("uri"), "-f", backup_file]
         cmd.extend(opts)
-        click.echo("Backing up with:")
+        click.echo("Exporting up with:")
         click.echo(click.style("\t" + " ".join(cmd), fg="yellow"))
         code, result, status = run_sync(cmd)
         if code != 0:
             click.echo(status)
             raise click.ClickException(result)
         click.echo(status)
-        click.echo("Backup complete\n")
+        click.echo("Export complete\n")
 
-    def restore(
-        self, db_name: str, creds: dict, backup_file: str, options: str = None
+    def import_svc(
+        self, svc_name: str, creds: dict, backup_file: str, options: str = None
     ) -> None:
-        click.echo(f"Restoring to Postgres DB: {db_name}")
+        click.echo(f"Importing to Postgres DB: {svc_name}")
         if options is not None:
             opts = options.split()
         else:
             opts = list()
-        if self.use_psql(backup_file):
+        if self._use_psql(backup_file): # sql file
             cmd = ["psql", "-d", creds.get("uri"), "-f", backup_file]
             cmd.extend(opts)
-        else:
+        else: # non sql format
             cmd = ["pg_restore", "-d", creds.get("uri")]
             cmd.extend(opts)
             cmd.append(backup_file)
 
-        click.echo("Restoring with:")
+        click.echo("Importing with:")
         click.echo(click.style("\t" + " ".join(cmd), fg="yellow"))
         code, result, status = run_sync(cmd)
         if code != 0:
             click.echo(status)
             raise click.ClickException(result)
         click.echo(status)
-        click.echo("Restore complete\n")
+        click.echo("Import complete\n")
 
-    def default_options(self, options: str, ignore: bool = False) -> str:
+    def default_export_options(self, options: str, ignore: bool = False) -> str: 
+        return self._default_options(options, ignore)
+
+    def default_import_options(self, options: str, ignore: bool = False) -> str: 
+        return self._default_options(options, ignore)
+
+    def _default_options(self, options: str, ignore: bool = False) -> str:
         if ignore:
             return options
         if options is not None:
@@ -126,5 +117,20 @@ class PgSql(Engine):
         # dont create DB broker already did that
         if "-C" in opts:
             opts.remove("-C")
-
         return " ".join(opts)
+
+    def _is_pgcustom(self, file_name: str) -> bool:
+        with open(file_name, "rb") as fd:
+            head = fd.read(5)
+            if head == b"PGDMP":
+                return True
+        return False
+
+    def _use_psql(self, file_name: str) -> bool:
+        if path.isdir(file_name):
+            return False
+        if tarfile.is_tarfile(file_name):
+            return False
+        if self._is_pgcustom(file_name):
+            return False
+        return True

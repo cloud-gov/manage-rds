@@ -4,17 +4,21 @@ import sys
 import signal
 import click
 import json
-from lib.cmds.utils import run_sync, run_async
+import re
+import importlib.resources as ir
+import cg_manage_rds
+from cg_manage_rds.cmds.utils import run_sync, run_async
 
 
 def push_app(app_name: str, manifest: str = "manifest.yml") -> None:
     click.echo("Pushing App to space")
-    base_path = getattr(sys, "_MEIPASS", os.getcwd())
-    app_dir = os.path.join(base_path, "cf-app")
+    orig_wd=getattr(sys, "_MEIPASS", os.getcwd())
+    app_dir = ir.files(cg_manage_rds).joinpath("cf-app").as_posix()
+    #app_dir = os.path.join(base_path, "cf-app")
     os.chdir(app_dir)
     cmd = ["cf", "push", app_name, "-f", manifest]
     code, result, status = run_sync(cmd)
-    os.chdir(base_path)
+    os.chdir(orig_wd)
     if code != 0:
         click.echo(status)
         raise click.ClickException(result)
@@ -102,3 +106,15 @@ def delete_ssh_tunnel(pid: int) -> None:
     os.kill(pid, signal.SIGKILL)
     click.secho("Command Succeeded!", fg="bright_green")
     click.echo(f"SSH Tunnel with PID of {pid} closed\n")
+
+
+def get_service_plan(service: str) -> str:
+    click.echo("Retrieving Service Info...")
+    cmd = ["cf", "service", service]
+    code, result, status = run_sync(cmd)
+    planmatch = re.search("plan:.*\n",result)
+    if code != 0 or planmatch is None:
+        click.echo(status)
+        raise click.ClickException(result)
+    planline = planmatch.group()
+    return planline.split()[-1]
