@@ -21,7 +21,7 @@ jobs:
         pip install -r requirements-dev.txt
         pip install -r requirements.txt
     - name: Build with pyinstaller
-      run: pyinstaller --onefile -n cg-manage-rds --add-data ./cf-app:./cf-app cli.py
+      run: pyinstaller --onefile -n cg-manage-rds cli.py
     - name: zip
       working-directory: dist
       run: zip cg-manage-rds.ubuntu-latest.x64.zip cg-manage-rds 
@@ -44,7 +44,7 @@ jobs:
         pip install -r requirements-dev.txt
         pip install -r requirements.txt
     - name: Build with pyinstaller
-      run: pyinstaller --onefile -n cg-manage-rds --add-data ./cf-app:./cf-app cli.py
+      run: pyinstaller --onefile -n cg-manage-rds cli.py
     - name: zip
       working-directory: dist
       run: zip cg-manage-rds.macos-latest.x64.zip cg-manage-rds 
