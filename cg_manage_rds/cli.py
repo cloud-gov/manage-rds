@@ -7,7 +7,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "-?", "--help"])
 @click.group(context_settings=CONTEXT_SETTINGS)
 def main():
     """
-    Application to a export, import, or clone a rds service instance from the aws-broker
+    Application to export, import, or clone a rds service instance from the aws-broker on Cloud.gov
     """
 
 ## CHECK
