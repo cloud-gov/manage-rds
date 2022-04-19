@@ -7,7 +7,7 @@ This utility simplifies export, import and migrations of those instances.
 
 ## Prerequisites
 
-You will need to have the cloudfoundry cli `cf`, ssh and database utilities installed for cg-manage to work.
+You will need to have the cloudfoundry cli `cf`, `ssh` and the standard database engine utilities installed for cg-manage to work.
 
 ## Installation
 
@@ -16,7 +16,7 @@ There are three options for installation:
 1. Use the [homebrew](https://brew.sh/) package manager for latest release:
 
 ```bash
-brew install rbogle/cg-manage-rds/cg-manage-rds
+brew install rbogle/cloud-gov/cg-manage-rds
 ```
 
 2. Extract the bundled executable from the appropriate zipfile in the latest release:
@@ -31,13 +31,13 @@ pip install git+https://github.com/rbogle/cg-manage-rds.git
 
 ## Usage
 
-The cg-manage-rds utility has multiple subcommands to provide specific functionality. Each of these will attempt to determine the type of database automatically from your service, but can be forced to use a specific type if needed. Under the hood the utility uses the `cf` , ssh, and the specific db engine utilities e.g. `psql` or `mysql` to do its work, so you must have those installed for your database. The commands:
+The cg-manage-rds utility has multiple subcommands to provide specific functionality. Each of these will attempt to determine the type of database automatically from your service, but can be forced to use a specific type if needed. Under the hood the utility uses the `cf` , `ssh`, and the specific db engine utilities e.g. `psql` or `mysql` to do its work, so you must have those installed for your database. The commands:
 
 - import
 - export
 - clone
 
-all attempt to install an application in your space, and then create a ssh tunnel to the database(s) through that application, and will then cleanup the app, keys and ssh tunnel when finished. You can choose to run `cg-manage-rds setup` or `cg-manage-rds cleanup` to setup or teardown the database connection and tunnel if other database work is required.
+all attempt to install an application in your current space, create a ssh tunnel to the database(s) through that application, execute the appropriate database commands, and finally will cleanup the app, keys and ssh tunnel when finished. You can re-use a setup or prevent a cleanup by using the appropriate options for the command. Alternatively, you can choose to run `cg-manage-rds setup` or `cg-manage-rds cleanup` to only setup or teardown the database connection and tunnel if other database work is required.
 
 ```bash
 cg-manage-rds --help
