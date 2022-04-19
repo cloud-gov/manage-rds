@@ -18,17 +18,17 @@ There are three options for installation:
 1. Use the [homebrew](https://brew.sh/) package manager for latest release, this can be used on mac,linux, and windows (not tested)
 
 ```bash
-brew install rbogle/cloud-gov/cg-manage-rds
+brew install cloud-gov/cloud-gov/cg-manage-rds
 ```
 
 2. Extract the bundled executable from the appropriate zipfile in the latest release:
   
-    <https://github.com/rbogle/cg-manage-rds/releases/latest>
+    <https://github.com/cloud-gov/cg-manage-rds/releases/latest>
 
 3. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment. 
 
 ```bash
-pip install git+https://github.com/rbogle/cg-manage-rds.git
+pip install git+https://github.com/cloud-gov/cg-manage-rds.git
 ```
 
 ## Usage
