@@ -58,8 +58,6 @@ Commands:
   setup    Setup app, key, and tunnel to a aws-rds service instance
 ```
 
-### Demo
-
 ### Exporting a Db
 
 Basic exporting will attempt to identify the engine type and export the db as a sql file `./db_backup.sql`
