@@ -18,7 +18,7 @@ There are three options for installation:
 1. Use the [homebrew](https://brew.sh/) package manager for latest release, this can be used on mac,linux, and windows (not tested)
 
 ```bash
-brew install cloud-gov/cloud-gov/cg-manage-rds
+brew install cloud-gov/cloudgov/cg-manage-rds
 ```
 
 2. Extract the bundled executable from the appropriate zipfile in the latest release:
