@@ -9,11 +9,13 @@ This utility simplifies export, import and migrations of those instances.
 
 You will need to have the cloudfoundry cli `cf`, `ssh` and the standard database engine utilities installed for cg-manage to work.
 
+Currently this utility supports linux and mac os installation. It has not been tested on windows but should work in the windows subsystem for linux.
+
 ## Installation
 
 There are three options for installation:
 
-1. Use the [homebrew](https://brew.sh/) package manager for latest release:
+1. Use the [homebrew](https://brew.sh/) package manager for latest release, this can be used on mac,linux, and windows (not tested)
 
 ```bash
 brew install rbogle/cloud-gov/cg-manage-rds
@@ -23,7 +25,7 @@ brew install rbogle/cloud-gov/cg-manage-rds
   
     <https://github.com/rbogle/cg-manage-rds/releases/latest>
 
-3. Or Use the package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source.
+3. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment. 
 
 ```bash
 pip install git+https://github.com/rbogle/cg-manage-rds.git
