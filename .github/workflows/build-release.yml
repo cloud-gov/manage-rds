@@ -89,7 +89,7 @@ jobs:
         - name: get hombrew repo
           uses: actions/checkout@v3
           with:
-            repository: "rbogle/hombrew-cloudgov"
+            repository: rbogle/homebrew-cloudgov
             path: homebrew
             token: ${{ secrets.ORG_PAT}}
         - name: update versions
@@ -97,7 +97,7 @@ jobs:
         - name: GitHub Commit & Push
           uses: actions-js/push@v1.3
           with:
-            repository: "rbogle/hombrew-cloudgov"
+            repository: rbogle/homebrew-cloudgov
             directory: homebrew
             github_token: ${{ secrets.ORG_PAT}}
 
