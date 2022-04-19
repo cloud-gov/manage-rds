@@ -1,3 +1,5 @@
+[![Build and Release](https://github.com/rbogle/cg-manage-rds/actions/workflows/build-release.yml/badge.svg)](https://github.com/rbogle/cg-manage-rds/actions/workflows/build-release.yml)
+
 # cg-manage-rds
 
 cg-manage-rds is a command line utility for managing rds instances created by the aws-broker in cloud.gov
