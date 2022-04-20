@@ -91,7 +91,7 @@ jobs:
           with:
             repository: cloud-gov/homebrew-cloudgov
             path: homebrew
-            token: ${{ secrets.ORG_PAT}}
+            token: ${{secrets.CGCIBOT_PAT}}
         - name: update versions
           run: mv cg-manage-rds.env homebrew/Versions/cg-manage-rds/cg-manage-rds.env
         - name: GitHub Commit & Push
@@ -99,5 +99,5 @@ jobs:
           with:
             repository: cloud-gov/homebrew-cloudgov
             directory: homebrew
-            github_token: ${{ secrets.ORG_PAT}}
+            github_token: ${{secrets.CGCIBOT_PAT}}
 
