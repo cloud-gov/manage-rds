@@ -98,6 +98,8 @@ class MySql(Engine):
             opts.append("-f")
         if "--set-gtid-purged=OFF" not in opts:
             opts.append("--set-gtid-purged=OFF")
+        if "--column-statistics=0" not in opts:
+            opts.append("--column-statistics=0")
         return " ".join(opts)
 
     def default_import_options(self, options: str, ignore: bool = False) -> str:
