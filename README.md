@@ -15,7 +15,7 @@ Currently this utility supports linux and mac os installation. It has not been t
 
 There are three options for installation:
 
-1. Use the [homebrew](https://brew.sh/) package manager for latest release, this can be used on mac,linux, and windows (not tested)
+1. Use the [homebrew](https://brew.sh/) package manager for latest release, this can be used on mac, linux, and possibly windows (not tested)
 
 ```bash
 brew install cloud-gov/cloudgov/cg-manage-rds
@@ -82,7 +82,7 @@ $ cg-manage-rds export -f ~/Backups/$(date +%m-%d-%Y)_test_backup.tar -o "-F t" 
 
 ```
 
-export does attempt to insert a few default options, to make the database backup portable those can be overridden with `--force-options` 
+export does attempt to insert a few default options to make the database backup portable; those can be removed or overwritten with the `--force-options` flag.
 
 ```
 Usage: cg-manage-rds export [OPTIONS] SOURCE
@@ -133,7 +133,7 @@ $ cg-manage-rds import -f ~/Backups/$(date +%m-%d-%Y)_test_backup.tar -o "-F t" 
 
 ```
 
-export does attempt to insert a few default options, to make the database backup portable those can be overridden with `--force-options`
+export does attempt to insert a few default options to make the database backup portable; those can be removed or overwritten with the `--force-options` flag.
 
 ```bash
 Usage: cg-manage-rds import [OPTIONS] DESTINATION
