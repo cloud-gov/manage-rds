@@ -48,11 +48,14 @@ class PgSql(Engine):
         click.echo(click.style("\npg_restore found!", fg="bright_green"))
 
     def export_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str = None, ignore: bool = False
+        self, svc_name: str, creds: dict, backup_file: str, options: str = None
     ) -> None:
         click.echo(f"Exporting Postgres DB: {svc_name}")
-        opts = self.default_export_options(options, ignore)
+        if options is not None:
+            opts = options.split()
+        else:
+            opts = list()
+
         cmd = ["pg_dump", "-d", creds.get("uri"), "-f", backup_file]
         cmd.extend(opts)
         click.echo("Exporting up with:")
@@ -65,18 +68,18 @@ class PgSql(Engine):
         click.echo("Export complete\n")
 
     def import_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str = None, ignore: bool = False
+        self, svc_name: str, creds: dict, backup_file: str, options: str = None
     ) -> None:
         click.echo(f"Importing to Postgres DB: {svc_name}")
- 
+        if options is not None:
+            opts = options.split()
+        else:
+            opts = list()
         if self._use_psql(backup_file): # sql file
             cmd = ["psql", "-d", creds.get("uri"), "-f", backup_file]
-            opts = self.default_import_options(options,True)
             cmd.extend(opts)
         else: # non sql format
             cmd = ["pg_restore", "-d", creds.get("uri")]
-            opts = self.default_import_options(options, ignore)
             cmd.extend(opts)
             cmd.append(backup_file)
 
@@ -89,19 +92,19 @@ class PgSql(Engine):
         click.echo(status)
         click.echo("Import complete\n")
 
-    def default_export_options(self, options: str, ignore: bool = False) -> list: 
+    def default_export_options(self, options: str, ignore: bool = False) -> str: 
         return self._default_options(options, ignore)
 
-    def default_import_options(self, options: str, ignore: bool = False) -> list: 
+    def default_import_options(self, options: str, ignore: bool = False) -> str: 
         return self._default_options(options, ignore)
 
-    def _default_options(self, options: str, ignore: bool = False) -> list:
+    def _default_options(self, options: str, ignore: bool = False) -> str:
+        if ignore:
+            return options
         if options is not None:
             opts = options.split()
         else:
             opts = list()
-        if ignore:
-            return opts
         # should remove owner
         if not any(x in ["-O", "--no-owner"] for x in opts):
             opts.append("-O")
@@ -114,7 +117,7 @@ class PgSql(Engine):
         # dont create DB broker already did that
         if "-C" in opts:
             opts.remove("-C")
-        return opts
+        return " ".join(opts)
 
     def _is_pgcustom(self, file_name: str) -> bool:
         with open(file_name, "rb") as fd:

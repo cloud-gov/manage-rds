@@ -4,17 +4,13 @@ from abc import ABC, abstractmethod
 class Engine(ABC):
     @abstractmethod
     def export_svc(
-        self, svc_name: str, creds: dict, 
-        backup_file: str, options: str = None,
-        ignore: bool = False
+        self, svc_name: str, creds: dict, backup_file: str, options: str = None
     ) -> None:
         pass
 
     @abstractmethod
     def import_svc(
-        self, svc_name: str, creds: dict, 
-        backup_file: str, options: str = None,
-        ignore: bool = False
+        self, svc_name: str, creds: dict, backup_file: str, options: str = None
     ) -> None:
         pass
 
@@ -27,9 +23,9 @@ class Engine(ABC):
         pass
 
     @abstractmethod
-    def default_export_options(self, options: str, ignore: bool = False) -> list:
+    def default_export_options(self, options: str, ignore: bool = False) -> str:
         pass
 
     @abstractmethod
-    def default_import_options(self, options: str, ignore: bool = False) -> list:
+    def default_import_options(self, options: str, ignore: bool = False) -> str:
         pass
