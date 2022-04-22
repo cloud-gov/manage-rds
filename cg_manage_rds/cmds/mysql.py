@@ -27,13 +27,11 @@ class MySql(Engine):
 
 
     def export_svc(
-        self, svc_name: str, creds: dict, backup_file: str, options: str=""
+        self, svc_name: str, creds: dict, backup_file: str,
+        options: str="", ignore: bool=False
     ) -> None:
         click.echo(f"Exporting from MySql DB: {svc_name}")
-        if options is not None:
-            opts = options.split()
-        else:
-            opts = list()
+        opts=self.default_export_options(options,ignore)
         base_opts = self._creds_to_opts(creds)
         cmd = ["mysqldump"]
         cmd.extend(base_opts)
@@ -50,14 +48,12 @@ class MySql(Engine):
         click.echo("Export complete\n")
 
     def import_svc(
-        self, svc_name: str, creds: dict, backup_file: str, options: str= ""
+        self, svc_name: str, creds: dict, backup_file: str,
+        options: str= "",  ignore: bool=False
     ) -> None:
         # mysql -u"user" -p"passwd" -h"127.0.0.1" -P"33306" -D"databasename" -e"source backup_file"
         click.echo(f"Importing to MySql DB: {svc_name}")
-        if options is not None:
-            opts = options.split()
-        else:
-            opts = list()
+        opts = self.default_import_options(options, ignore)
         base_opts = self._creds_to_opts(creds)
         cmd = ["mysql"]
         cmd.extend(base_opts)
@@ -80,13 +76,13 @@ class MySql(Engine):
         creds['uri'] = f"mysql -u\"{creds['username']}\" -p\"{creds['password']}\" -h\"{creds['local_host']}\" -P\"{creds['local_port']}\" -D\"{creds['db_name']}\""
         return creds
 
-    def default_export_options(self, options: str, ignore: bool = False) -> str:
-        if ignore:
-            return options
+    def default_export_options(self, options: str, ignore: bool = False) -> list:
         if options is not None:
             opts = options.split()
         else:
             opts = list()
+        if ignore:
+            return opts
         # dont create
         if not any(x in [ "-n", "--no-create-db"] for x in opts):
             opts.append("-n")
@@ -100,10 +96,14 @@ class MySql(Engine):
             opts.append("--set-gtid-purged=OFF")
         if "--column-statistics=0" not in opts:
             opts.append("--column-statistics=0")
-        return " ".join(opts)
+        return opts
 
-    def default_import_options(self, options: str, ignore: bool = False) -> str:
-        return options
+    def default_import_options(self, options: str, ignore: bool = False) -> list:
+        if options is not None:
+            opts = options.split()
+        else:
+            opts = list()
+        return opts
 
     def _creds_to_opts(self,creds: dict) -> list:
         opts = f"-u{creds['username']} "
