@@ -27,11 +27,14 @@ class MySql(Engine):
 
 
     def export_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str="", ignore: bool=False
+        self, svc_name: str, creds: dict, backup_file: str, options: str="", ignore: bool = False
     ) -> None:
         click.echo(f"Exporting from MySql DB: {svc_name}")
-        opts=self.default_export_options(options,ignore)
+        opts = self.default_export_options(options, ignore)
+        # if options is not None:
+        #     opts = options.split()
+        # else:
+        #     opts = list()
         base_opts = self._creds_to_opts(creds)
         cmd = ["mysqldump"]
         cmd.extend(base_opts)
@@ -48,12 +51,16 @@ class MySql(Engine):
         click.echo("Export complete\n")
 
     def import_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str= "",  ignore: bool=False
+        self, svc_name: str, creds: dict, 
+        backup_file: str, options: str= "", ignore: bool = False
     ) -> None:
         # mysql -u"user" -p"passwd" -h"127.0.0.1" -P"33306" -D"databasename" -e"source backup_file"
         click.echo(f"Importing to MySql DB: {svc_name}")
-        opts = self.default_import_options(options, ignore)
+        opts = self.default_import_options(options,ignore)
+        # if options is not None:
+        #     opts = options.split()
+        # else:
+        #     opts = list()
         base_opts = self._creds_to_opts(creds)
         cmd = ["mysql"]
         cmd.extend(base_opts)

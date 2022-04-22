@@ -52,11 +52,7 @@ class PgSql(Engine):
         options: str = None, ignore: bool = False
     ) -> None:
         click.echo(f"Exporting Postgres DB: {svc_name}")
-        if options is not None:
-            opts = options.split()
-        else:
-            opts = list()
-        opts = self.default_export_options(options,ignore)
+        opts = self.default_export_options(options, ignore)
         cmd = ["pg_dump", "-d", creds.get("uri"), "-f", backup_file]
         cmd.extend(opts)
         click.echo("Exporting up with:")
@@ -73,12 +69,10 @@ class PgSql(Engine):
         options: str = None, ignore: bool = False
     ) -> None:
         click.echo(f"Importing to Postgres DB: {svc_name}")
-        if options is not None:
-            opts = options.split()
-        else:
-            opts = list()
+ 
         if self._use_psql(backup_file): # sql file
             cmd = ["psql", "-d", creds.get("uri"), "-f", backup_file]
+            opts = self.default_import_options(options,True)
             cmd.extend(opts)
         else: # non sql format
             cmd = ["pg_restore", "-d", creds.get("uri")]

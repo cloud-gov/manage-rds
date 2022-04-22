@@ -95,8 +95,8 @@ def export_from_svc(
         click.echo("Credentials ready\n")
 
     click.echo("Performing export")
+    # options = engine.default_export_options(options, ignore_defaults)
     engine.export_svc(service_name, creds, backup_file, options, ignore_defaults)
-    # backup_db(service_name, creds, engine_type, backup_file, options)
     click.echo("Export completed\n")
 
     if do_teardown:
@@ -139,6 +139,7 @@ def import_to_svc(
         click.echo("Credentials ready\n")
 
     click.echo("Performing import")
+    # options = engine.default_import_options(options, ignore_defaults)
     engine.import_svc(service_name, creds, backup_file, options, ignore_defaults)
     click.echo("Import completed\n")
 
@@ -175,6 +176,7 @@ def clone(
     click.echo("Setup complete\n")
 
     click.echo(f"Performing exprot of {src_service}")
+    # backup_options = engine.default_export_options(backup_options, ignore_defaults)
     engine.export_svc(src_service, creds, backup_file, backup_options, ignore_defaults)
     click.echo("Export completed\n")
 
@@ -188,6 +190,7 @@ def clone(
     click.echo("Setup complete\n")
 
     click.echo(f"Performing import to {dst_service}")
+    # restore_options = engine.default_import_options(restore_options, ignore_defaults)
     engine.import_svc(dst_service, creds, backup_file, restore_options, ignore_defaults)
     click.echo("Import Completed\n")
 

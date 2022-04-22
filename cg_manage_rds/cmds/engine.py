@@ -4,15 +4,17 @@ from abc import ABC, abstractmethod
 class Engine(ABC):
     @abstractmethod
     def export_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str = None, ignore: bool = False
+        self, svc_name: str, creds: dict, 
+        backup_file: str, options: str = None,
+        ignore: bool = False
     ) -> None:
         pass
 
     @abstractmethod
     def import_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str = None, ignore: bool = False
+        self, svc_name: str, creds: dict, 
+        backup_file: str, options: str = None,
+        ignore: bool = False
     ) -> None:
         pass
 
