@@ -5,7 +5,7 @@ import signal
 import click
 import json
 import re
-import importlib.resources as ir
+from pathlib import PurePath
 import cg_manage_rds
 from cg_manage_rds.cmds.utils import run_sync, run_async
 
@@ -13,7 +13,7 @@ from cg_manage_rds.cmds.utils import run_sync, run_async
 def push_app(app_name: str, manifest: str = "manifest.yml") -> None:
     click.echo("Pushing App to space")
     orig_wd=getattr(sys, "_MEIPASS", os.getcwd())
-    app_dir = ir.files(cg_manage_rds).joinpath("cf-app").as_posix()
+    app_dir = PurePath(cg_manage_rds.__file__).parent.joinpath("cf-app").as_posix()
     #app_dir = os.path.join(base_path, "cf-app")
     os.chdir(app_dir)
     cmd = ["cf", "push", app_name, "-f", manifest]
