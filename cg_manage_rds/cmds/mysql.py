@@ -6,6 +6,7 @@ from cg_manage_rds.cmds import cf_cmds as cf
 
 class MySql(Engine):
     def prerequisites(self) -> None:
+        cf.check_cf_cli()
         click.echo("Checking for locally installed mysql utilities")
         cmd = ["which", "mysql"]
         code, _, _ = run_sync(cmd)

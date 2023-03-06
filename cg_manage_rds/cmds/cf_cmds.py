@@ -9,6 +9,8 @@ import importlib.resources as ir
 import cg_manage_rds
 from cg_manage_rds.cmds.utils import run_sync, run_async
 
+CF_VERSION = '7'
+CF_VERSION_PASSED = False
 
 def push_app(app_name: str, manifest: str = "manifest.yml") -> None:
     click.echo("Pushing App to space")
@@ -118,3 +120,24 @@ def get_service_plan(service: str) -> str:
         raise click.ClickException(result)
     planline = planmatch.group()
     return planline.split()[-1]
+
+def check_cf_cli() -> None:
+    global CF_VERSION_PASSED
+    if not CF_VERSION_PASSED :
+        click.echo("Checking for CF version")
+        cmd = ["cf", "--version" ]
+        code, result, _ = run_sync(cmd)
+        if code != 0:
+            errstr = click.style(
+                "\nCF cli version {} is required but not found".format(CF_VERSION), fg="red"
+            )
+            raise click.ClickException(errstr)
+        version = result.split()[2].split('.')[0]
+        if version != CF_VERSION:
+            errstr = click.style(
+                "\nCF cli application version {} is required".format(CF_VERSION), fg="red"
+            )
+            raise click.ClickException(errstr)
+        click.echo(click.style("\ncf version {} found!".format(CF_VERSION), fg="bright_green"))   
+        CF_VERSION_PASSED=True
+

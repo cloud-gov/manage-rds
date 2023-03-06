@@ -7,6 +7,7 @@ from cg_manage_rds.cmds.pgsql import PgSql
 from cg_manage_rds.cmds.mysql import MySql
 
 def find_engine_type(service_name: str)->str:
+    cf.check_cf_cli()
     plan=cf.get_service_plan(service_name)
     if re.search("mysql", plan):
         return 'mysql'
@@ -56,7 +57,7 @@ def setup(
 def cleanup(
     service_name: str, pid: int = 0, app_name: str = "ssh-app", key_name: str = "key"
 ) -> None:
-
+    cf.check_cf_cli()
     if pid != 0:
         cf.delete_ssh_tunnel(pid)
     cf.delete_service_key(key_name, service_name)
