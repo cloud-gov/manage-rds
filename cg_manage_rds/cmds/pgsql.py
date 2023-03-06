@@ -19,6 +19,7 @@ class PgSql(Engine):
         return creds
 
     def prerequisites(self) -> None:
+        cf.check_cf_cli()
         click.echo("Checking for locally installed postgres utilities")
         cmd = ["which", "psql"]
         code, _, _ = run_sync(cmd)
