@@ -104,6 +104,11 @@ jobs:
             git_commit_gpgsign: true
         - name: update versions
           run: mv cg-manage-rds.env homebrew/Versions/cg-manage-rds/cg-manage-rds.env
+        - name: Generate Formula
+          working-directory: homebrew/Versions
+          run: |
+            pwd
+            ./gen_formula.sh
         - name: GitHub Commit & Push
           uses: actions-js/push@v1.3
           with:
