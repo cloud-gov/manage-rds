@@ -9,7 +9,7 @@ import importlib.resources as ir
 import cg_manage_rds
 from cg_manage_rds.cmds.utils import run_sync, run_async
 
-CF_VERSION = '7'
+ALLOWED_CF_VERSIONS = ['7', '8']
 CF_VERSION_PASSED = False
 
 def push_app(app_name: str, manifest: str = "manifest.yml") -> None:
@@ -129,15 +129,18 @@ def check_cf_cli() -> None:
         code, result, _ = run_sync(cmd)
         if code != 0:
             errstr = click.style(
-                "\nCF cli version {} is required but not found".format(CF_VERSION), fg="red"
+                "\ncf versions {} are supported, but none was found".format(ALLOWED_CF_VERSIONS), fg="red"
             )
             raise click.ClickException(errstr)
-        version = result.split()[2].split('.')[0]
-        if version != CF_VERSION:
+        [version, is_supported_cf_version] = validate_cf_cli_version(result)
+        if not is_supported_cf_version:
             errstr = click.style(
-                "\nCF cli application version {} is required".format(CF_VERSION), fg="red"
+                "\ncf version {} does not match supported versions {} ".format(version, ALLOWED_CF_VERSIONS), fg="red"
             )
             raise click.ClickException(errstr)
-        click.echo(click.style("\ncf version {} found!".format(CF_VERSION), fg="bright_green"))   
+        click.echo(click.style("\ncf version {} found!".format(version), fg="bright_green"))
         CF_VERSION_PASSED=True
 
+def validate_cf_cli_version(result: str) -> tuple[str, bool]:
+    version = result.split()[2].split('.')[0]
+    return [version, version in ALLOWED_CF_VERSIONS]
