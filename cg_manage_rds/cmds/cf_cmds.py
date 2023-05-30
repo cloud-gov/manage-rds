@@ -82,7 +82,7 @@ def get_service_key(key_name: str, service_name: str) -> dict:
     click.echo(status)
     click.echo("Service Key Created.\n")
     cred_str = "\n".join(result.split("\n")[2:])
-    return json.loads(cred_str)
+    return json.loads(cred_str)["credentials"]
 
 
 def create_ssh_tunnel(app_name: str, src_port: int, dst_port: int, host: str) -> int:
