@@ -97,7 +97,7 @@ def create_ssh_tunnel(app_name: str, src_port: int, dst_port: int, host: str) ->
     # cmd = ["cf", "ssh", app_name ,"-T","-L", tunnel ]
     cmd = f"cf ssh {app_name} -N -T -L {tunnel} &"
     proc = run_async(cmd, shell=True)
-    time.sleep(5)  # wait for tunnel to stabilize
+    time.sleep(6)  # wait for tunnel to stabilize
     if proc.poll() == 0:
         click.secho("Command Succeeded!", fg="bright_green")
         click.echo(f"SSH Tunnel Running with PID {proc.pid+1}\n")
