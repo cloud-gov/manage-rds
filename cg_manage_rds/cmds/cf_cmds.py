@@ -6,10 +6,12 @@ import click
 import json
 import re
 import importlib.resources as ir
+import semver
 import cg_manage_rds
 from cg_manage_rds.cmds.utils import run_sync, run_async
 
-CF_VERSION = '7'
+ALLOWED_CF_VERSIONS = [7, 8]
+CF_VERSION = 7
 CF_VERSION_PASSED = False
 
 def push_app(app_name: str, manifest: str = "manifest.yml") -> None:
@@ -82,7 +84,10 @@ def get_service_key(key_name: str, service_name: str) -> dict:
     click.echo(status)
     click.echo("Service Key Created.\n")
     cred_str = "\n".join(result.split("\n")[2:])
-    return json.loads(cred_str)
+    credentials = json.loads(cred_str)
+    if CF_VERSION == 8:
+        return credentials["credentials"]
+    return credentials
 
 
 def create_ssh_tunnel(app_name: str, src_port: int, dst_port: int, host: str) -> int:
@@ -92,7 +97,7 @@ def create_ssh_tunnel(app_name: str, src_port: int, dst_port: int, host: str) ->
     # cmd = ["cf", "ssh", app_name ,"-T","-L", tunnel ]
     cmd = f"cf ssh {app_name} -N -T -L {tunnel} &"
     proc = run_async(cmd, shell=True)
-    time.sleep(5)  # wait for tunnel to stabilize
+    time.sleep(6)  # wait for tunnel to stabilize
     if proc.poll() == 0:
         click.secho("Command Succeeded!", fg="bright_green")
         click.echo(f"SSH Tunnel Running with PID {proc.pid+1}\n")
@@ -123,21 +128,26 @@ def get_service_plan(service: str) -> str:
 
 def check_cf_cli() -> None:
     global CF_VERSION_PASSED
+    global CF_VERSION
     if not CF_VERSION_PASSED :
         click.echo("Checking for CF version")
         cmd = ["cf", "--version" ]
         code, result, _ = run_sync(cmd)
         if code != 0:
             errstr = click.style(
-                "\nCF cli version {} is required but not found".format(CF_VERSION), fg="red"
+                "\ncf versions {} are supported, but none was found".format(ALLOWED_CF_VERSIONS), fg="red"
             )
             raise click.ClickException(errstr)
-        version = result.split()[2].split('.')[0]
-        if version != CF_VERSION:
+        [version, is_supported_cf_version] = validate_cf_cli_version(result)
+        if not is_supported_cf_version:
             errstr = click.style(
-                "\nCF cli application version {} is required".format(CF_VERSION), fg="red"
+                "\ncf version {} does not match supported versions {} ".format(version, ALLOWED_CF_VERSIONS), fg="red"
             )
             raise click.ClickException(errstr)
-        click.echo(click.style("\ncf version {} found!".format(CF_VERSION), fg="bright_green"))   
+        click.echo(click.style("\ncf version {} found!".format(version), fg="bright_green"))
         CF_VERSION_PASSED=True
+        CF_VERSION = version.major
 
+def validate_cf_cli_version(result: str) -> tuple[str, bool]:
+    version = semver.Version.parse(result.split()[-1])
+    return [version, version.major in ALLOWED_CF_VERSIONS]

@@ -1,6 +1,6 @@
-[![Build and Release](https://github.com/rbogle/cg-manage-rds/actions/workflows/build-release.yml/badge.svg)](https://github.com/rbogle/cg-manage-rds/actions/workflows/build-release.yml)
-
 # cg-manage-rds
+
+[![Build and Release](https://github.com/rbogle/cg-manage-rds/actions/workflows/build-release.yml/badge.svg)](https://github.com/rbogle/cg-manage-rds/actions/workflows/build-release.yml)
 
 cg-manage-rds is a command line utility for managing rds instances created by the aws-broker in cloud.gov
 This utility simplifies export, import and migrations of those instances.
@@ -25,7 +25,7 @@ brew install cloud-gov/cloudgov/cg-manage-rds
   
     <https://github.com/cloud-gov/cg-manage-rds/releases/latest>
 
-3. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment. 
+3. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment.
 
 ```bash
 pip install git+https://github.com/cloud-gov/cg-manage-rds.git
@@ -60,16 +60,17 @@ Commands:
   setup    Setup app, key, and tunnel to a aws-rds service instance
 ```
 
-### Exporting a Db
+### Exporting a database
 
 Basic exporting will attempt to identify the engine type and export the db as a sql file `./db_backup.sql`
+
 ```bash
 $ cf serivces
 Getting services in org sandbox-org / space foo.bar as foo.bar@example.gov...
 
 name                    service   plan           bound apps   last operation     broker       upgrade available
-test-micro-psql-src     aws-rds   micro-psql                  create succeeded   aws-broker   
-test-micro-psql-dest    aws-rds   micro-psql                  create succeeded   aws-broker 
+test-micro-psql-src     aws-rds   micro-psql                  create succeeded   aws-broker
+test-micro-psql-dest    aws-rds   micro-psql                  create succeeded   aws-broker
 
 $ cg-manage-rds export test-micro-psql-src
 
@@ -78,13 +79,12 @@ $ cg-manage-rds export test-micro-psql-src
 The export subcommand has multiple options available. For example, the file name and location can be specified with `-f` and a string of options and flags can be passed to the engine client with `-o`:
 
 ```bash
-$ cg-manage-rds export -f ~/Backups/$(date +%m-%d-%Y)_test_backup.tar -o "-F t" test-micro-psql-src
-
+cg-manage-rds export -f ~/Backups/$(date +%m-%d-%Y)_test_backup.tar -o "-F t" test-micro-psql-src
 ```
 
 export does attempt to insert a few default options to make the database backup portable; those can be removed or overwritten with the `--force-options` flag.
 
-```
+```shell
 Usage: cg-manage-rds export [OPTIONS] SOURCE
 
   Export data and/or schema from SOURCE aws-rds service instance
@@ -111,16 +111,17 @@ Options:
 
 ```
 
-### Importing a Db
+### Importing a database
 
 Basic importing will attempt to identify the engine type and import the db from a sql file `./db_backup.sql`
+
 ```bash
 $ cf serivces
 Getting services in org sandbox-org / space foo.bar as foo.bar@example.gov...
 
 name                    service   plan           bound apps   last operation     broker       upgrade available
-test-micro-psql-src     aws-rds   micro-psql                  create succeeded   aws-broker   
-test-micro-psql-dest    aws-rds   micro-psql                  create succeeded   aws-broker  
+test-micro-psql-src     aws-rds   micro-psql                  create succeeded   aws-broker
+test-micro-psql-dest    aws-rds   micro-psql                  create succeeded   aws-broker
 
 $ cg-manage-rds import test-micro-psql-dest
 
@@ -129,8 +130,7 @@ $ cg-manage-rds import test-micro-psql-dest
 The import subcommand has multiple options available. For example, the file name and location can be specified with `-f` and a string of options and flags can be passed to the engine client with `-o`:
 
 ```bash
-$ cg-manage-rds import -f ~/Backups/$(date +%m-%d-%Y)_test_backup.tar -o "-F t" test-micro-psql-dest
-
+cg-manage-rds import -f ~/Backups/$(date +%m-%d-%Y)_test_backup.tar -o "-F t" test-micro-psql-dest
 ```
 
 export does attempt to insert a few default options to make the database backup portable; those can be removed or overwritten with the `--force-options` flag.
@@ -161,7 +161,7 @@ Options:
   -h, -?, --help              Show this message and exit.
 ```
 
-### Cloning a Db
+### Cloning a database
 
 The clone subcommand first performs an export from a source database and then imports to a destination database. The export is saved locally in `output-file`. You must have the destination database already created and ready before cloning. By default the database name and ownership  is not included in the export in order to enable easy import to another database created by the aws-rds broker.
 
