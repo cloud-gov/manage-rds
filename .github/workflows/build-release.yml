@@ -2,7 +2,7 @@ name: Build and Release
 # will create linux and macos distributables and a release for them
 # when a new tag is pushed.
 on:
-  pull-request:
+  pull_request:
   # push:
   #   tags:
   #    - 'v*'
