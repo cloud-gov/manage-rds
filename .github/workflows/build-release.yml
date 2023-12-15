@@ -71,11 +71,11 @@ jobs:
       run: pyinstaller --onefile -n cg-manage-rds cli.py
     - name: zip
       working-directory: dist
-      run: zip cg-manage-rds.windows-latest.x64.zip cg-manage-rds
-    - uses: actions/upload-artifact@v3
-      with:
-        name: windows
-        path: dist/cg-manage-rds.windows-latest.x64.zip
+      run: Compress-Archive -Path cg-manage-rds -Destination cg-manage-rds.windows-latest.x64.zip
+    # - uses: actions/upload-artifact@v3
+    #   with:
+    #     name: windows
+    #     path: dist/cg-manage-rds.windows-latest.x64.zip
 
   # release:
   #   needs:
