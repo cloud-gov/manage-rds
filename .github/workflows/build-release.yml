@@ -1,6 +1,6 @@
 name: Build and Release
-# will create linux and macos distributables and a release for them 
-# when a new tag is pushed. 
+# will create linux and macos distributables and a release for them
+# when a new tag is pushed.
 on:
   push:
     tags:
@@ -24,7 +24,7 @@ jobs:
       run: pyinstaller --onefile -n cg-manage-rds cli.py
     - name: zip
       working-directory: dist
-      run: zip cg-manage-rds.ubuntu-latest.x64.zip cg-manage-rds 
+      run: zip cg-manage-rds.ubuntu-latest.x64.zip cg-manage-rds
     - uses: actions/upload-artifact@v3
       with:
         name: linux
@@ -47,14 +47,37 @@ jobs:
       run: pyinstaller --onefile -n cg-manage-rds cli.py
     - name: zip
       working-directory: dist
-      run: zip cg-manage-rds.macos-latest.x64.zip cg-manage-rds 
+      run: zip cg-manage-rds.macos-latest.x64.zip cg-manage-rds
     - uses: actions/upload-artifact@v3
       with:
         name: macos
         path: dist/cg-manage-rds.macos-latest.x64.zip
 
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+        pip install -r requirements.txt
+    - name: Build with pyinstaller
+      run: pyinstaller --onefile -n cg-manage-rds cli.py
+    - name: zip
+      working-directory: dist
+      run: 7z a -tzip cg-manage-rds.windows-latest.x64.zip cg-manage-rds.exe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: windows
+        path: dist/cg-manage-rds.windows-latest.x64.zip
+
   release:
-    needs: 
+    needs:
     - build-linux
     - build-mac
     runs-on: ubuntu-latest
@@ -69,6 +92,7 @@ jobs:
         files: |
           dist/linux/cg-manage-rds.ubuntu-latest.x64.zip
           dist/macos/cg-manage-rds.macos-latest.x64.zip
+          dist/windows/cg-manage-rds.windows-latest.x64.zip
 
   update-formula:
       needs: release
