@@ -18,7 +18,6 @@ def push_app(app_name: str, manifest: str = "manifest.yml") -> None:
     click.echo("Pushing App to space")
     orig_wd=getattr(sys, "_MEIPASS", os.getcwd())
     app_dir = ir.files(cg_manage_rds).joinpath("cf-app").as_posix()
-    #app_dir = os.path.join(base_path, "cf-app")
     os.chdir(app_dir)
     cmd = ["cf", "push", app_name, "-f", manifest]
     code, result, status = run_sync(cmd)
