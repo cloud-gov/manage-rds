@@ -13,9 +13,9 @@ class PgSql(Engine):
         cf.create_service_key(key_name, service_name)
         creds = cf.get_service_key(key_name, service_name)
         creds["local_port"] = int(creds.get("port")) + 60000
-        creds[
-            "uri"
-        ] = f"postgres://{creds['username']}:{creds['password']}@localhost:{creds['local_port']}/{creds['db_name']}"
+        creds["uri"] = (
+            f"postgres://{creds['username']}:{creds['password']}@localhost:{creds['local_port']}/{creds['db_name']}"
+        )
         return creds
 
     def prerequisites(self) -> None:
@@ -49,15 +49,19 @@ class PgSql(Engine):
         click.echo(click.style("\npg_restore found!", fg="bright_green"))
 
     def export_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str = None, ignore: bool = False
+        self,
+        svc_name: str,
+        creds: dict,
+        backup_file: str,
+        options: str = None,
+        ignore: bool = False,
     ) -> None:
         click.echo(f"Exporting Postgres DB: {svc_name}")
         if options is not None:
             opts = options.split()
         else:
             opts = list()
-        opts = self.default_export_options(options,ignore)
+        opts = self.default_export_options(options, ignore)
         cmd = ["pg_dump", "-d", creds.get("uri"), "-f", backup_file]
         cmd.extend(opts)
         click.echo("Exporting up with:")
@@ -70,18 +74,22 @@ class PgSql(Engine):
         click.echo("Export complete\n")
 
     def import_svc(
-        self, svc_name: str, creds: dict, backup_file: str,
-        options: str = None, ignore: bool = False
+        self,
+        svc_name: str,
+        creds: dict,
+        backup_file: str,
+        options: str = None,
+        ignore: bool = False,
     ) -> None:
         click.echo(f"Importing to Postgres DB: {svc_name}")
         if options is not None:
             opts = options.split()
         else:
             opts = list()
-        if self._use_psql(backup_file): # sql file
+        if self._use_psql(backup_file):  # sql file
             cmd = ["psql", "-d", creds.get("uri"), "-f", backup_file]
             cmd.extend(opts)
-        else: # non sql format
+        else:  # non sql format
             cmd = ["pg_restore", "-d", creds.get("uri")]
             opts = self.default_import_options(options, ignore)
             cmd.extend(opts)
@@ -96,10 +104,10 @@ class PgSql(Engine):
         click.echo(status)
         click.echo("Import complete\n")
 
-    def default_export_options(self, options: str, ignore: bool = False) -> list: 
+    def default_export_options(self, options: str, ignore: bool = False) -> list:
         return self._default_options(options, ignore)
 
-    def default_import_options(self, options: str, ignore: bool = False) -> list: 
+    def default_import_options(self, options: str, ignore: bool = False) -> list:
         return self._default_options(options, ignore)
 
     def _default_options(self, options: str, ignore: bool = False) -> list:

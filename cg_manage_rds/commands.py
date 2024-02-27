@@ -6,14 +6,16 @@ from cg_manage_rds.cmds.engine import Engine
 from cg_manage_rds.cmds.pgsql import PgSql
 from cg_manage_rds.cmds.mysql import MySql
 
-def find_engine_type(service_name: str)->str:
+
+def find_engine_type(service_name: str) -> str:
     cf.check_cf_cli()
-    plan=cf.get_service_plan(service_name)
+    plan = cf.get_service_plan(service_name)
     if re.search("mysql", plan):
-        return 'mysql'
+        return "mysql"
     if re.search("psql", plan):
         return "pgsql"
     raise click.ClickException(f"Unsported service plan: {plan}")
+
 
 def get_engine_handler(engine_type: str) -> Engine:
     if engine_type == "pgsql":
@@ -24,18 +26,19 @@ def get_engine_handler(engine_type: str) -> Engine:
         raise click.ClickException(f"Unsupported Database Engine: {engine_type}")
 
 
-def check(service: str, engine_name: str=None) -> None:
+def check(service: str, engine_name: str = None) -> None:
     if engine_name is None:
         engine_name = find_engine_type(service)
     engine = get_engine_handler(engine_name)
     engine.prerequisites()
+
 
 def setup(
     service_name: str,
     engine_type: str = None,
     app_name: str = "ssh-app",
     key_name: str = "key",
-    engine: Engine= None,
+    engine: Engine = None,
 ) -> Tuple[dict, int]:
 
     if engine_type is None:
@@ -87,7 +90,9 @@ def export_from_svc(
     # either push app and create key, or reuse existing setup and key
     if do_setup:
         click.echo("Configuring CF space for SSH to Service")
-        creds, pid = setup(service_name, app_name=app_name, key_name=service_key, engine=engine)
+        creds, pid = setup(
+            service_name, app_name=app_name, key_name=service_key, engine=engine
+        )
         click.echo("Config complete\n")
     else:
         click.echo("Retrieving credentials for Service")
@@ -131,7 +136,9 @@ def import_to_svc(
     # either push app and create key, or reuse existing setup and key
     if do_setup:
         click.echo("Configuring CF space for SSH to Database")
-        creds, pid = setup(service_name, app_name=app_name, key_name=service_key, engine=engine)
+        creds, pid = setup(
+            service_name, app_name=app_name, key_name=service_key, engine=engine
+        )
         click.echo("Config complete\n")
     else:
         click.echo("Retrieving credentials for Database")
@@ -172,7 +179,9 @@ def clone(
 
     # First Backup source
     click.echo(f"Setting up CF space for SSH to {src_service}")
-    creds, pid = setup(src_service, app_name=app_name, key_name=service_key, engine=engine)
+    creds, pid = setup(
+        src_service, app_name=app_name, key_name=service_key, engine=engine
+    )
     click.echo("Setup complete\n")
 
     click.echo(f"Performing exprot of {src_service}")
@@ -185,7 +194,9 @@ def clone(
 
     # Now restore to destination
     click.echo(f"Setting up CF space for SSH to {dst_service}")
-    creds, pid = setup(dst_service, app_name=app_name, key_name=service_key, engine=engine)
+    creds, pid = setup(
+        dst_service, app_name=app_name, key_name=service_key, engine=engine
+    )
     click.echo("Setup complete\n")
 
     click.echo(f"Performing import to {dst_service}")

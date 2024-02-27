@@ -14,9 +14,10 @@ ALLOWED_CF_VERSIONS = [7, 8]
 CF_VERSION = 7
 CF_VERSION_PASSED = False
 
+
 def push_app(app_name: str, manifest: str = "manifest.yml") -> None:
     click.echo("Pushing App to space")
-    orig_wd=getattr(sys, "_MEIPASS", os.getcwd())
+    orig_wd = getattr(sys, "_MEIPASS", os.getcwd())
     app_dir = ir.files(cg_manage_rds).joinpath("cf-app").as_posix()
     os.chdir(app_dir)
     cmd = ["cf", "push", app_name, "-f", manifest]
@@ -118,34 +119,44 @@ def get_service_plan(service: str) -> str:
     click.echo("Retrieving Service Info...")
     cmd = ["cf", "service", service]
     code, result, status = run_sync(cmd)
-    planmatch = re.search("plan:.*\n",result)
+    planmatch = re.search("plan:.*\n", result)
     if code != 0 or planmatch is None:
         click.echo(status)
         raise click.ClickException(result)
     planline = planmatch.group()
     return planline.split()[-1]
 
+
 def check_cf_cli() -> None:
     global CF_VERSION_PASSED
     global CF_VERSION
-    if not CF_VERSION_PASSED :
+    if not CF_VERSION_PASSED:
         click.echo("Checking for CF version")
-        cmd = ["cf", "--version" ]
+        cmd = ["cf", "--version"]
         code, result, _ = run_sync(cmd)
         if code != 0:
             errstr = click.style(
-                "\ncf versions {} are supported, but none was found".format(ALLOWED_CF_VERSIONS), fg="red"
+                "\ncf versions {} are supported, but none was found".format(
+                    ALLOWED_CF_VERSIONS
+                ),
+                fg="red",
             )
             raise click.ClickException(errstr)
         [version, is_supported_cf_version] = validate_cf_cli_version(result)
         if not is_supported_cf_version:
             errstr = click.style(
-                "\ncf version {} does not match supported versions {} ".format(version, ALLOWED_CF_VERSIONS), fg="red"
+                "\ncf version {} does not match supported versions {} ".format(
+                    version, ALLOWED_CF_VERSIONS
+                ),
+                fg="red",
             )
             raise click.ClickException(errstr)
-        click.echo(click.style("\ncf version {} found!".format(version), fg="bright_green"))
-        CF_VERSION_PASSED=True
+        click.echo(
+            click.style("\ncf version {} found!".format(version), fg="bright_green")
+        )
+        CF_VERSION_PASSED = True
         CF_VERSION = version.major
+
 
 def validate_cf_cli_version(result: str) -> tuple[str, bool]:
     version = semver.Version.parse(result.split()[-1])
