@@ -35,6 +35,8 @@ pip install git+https://github.com/cloud-gov/cg-manage-rds.git
 
 See [DEVELOPING.md](./DEVELOPING.md).
 
+> **VERY IMPORTANT NOTE**: If you add a new package dependency in `requirements.txt`, you **must make a corresponding PR to [the template for the `cg-manage-rds` Homebrew formula](https://github.com/cloud-gov/homebrew-cloudgov/blob/main/Versions/cg-manage-rds/cg-manage-rds.tmpl) to explicitly add the new dependency**. For example, see <https://github.com/cloud-gov/homebrew-cloudgov/pull/3>.
+
 ## Usage
 
 The cg-manage-rds utility has multiple subcommands to provide specific functionality. Each of these will attempt to determine the type of database automatically from your service, but can be forced to use a specific type if needed. Under the hood the utility uses the `cf` , `ssh`, and the specific db engine utilities e.g. `psql` or `mysql` to do its work, so you must have those installed for your database. The commands:

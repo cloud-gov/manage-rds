@@ -37,5 +37,5 @@ black .
       - Mac
       - Linux
       - Windows
-    - Create a GitHub release for the tag
+    - Create a [GitHub release](https://github.com/cloud-gov/cg-manage-rds/releases) for the tag
     - Update the [Homebrew formula for `cg-manage-rds` in the `cloud-gov/cloudgov` tap](https://github.com/cloud-gov/homebrew-cloudgov)
