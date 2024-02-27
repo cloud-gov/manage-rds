@@ -21,7 +21,7 @@ black .
 
 1. Create a new tag:
 
-  ```shel
+  ```shell
   git tag -a v0.x.x -m "Version 0.x.x"
   ```
 
