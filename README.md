@@ -210,6 +210,10 @@ There are several utility commands to assist working with services:
 
 `Cleanup` will teardown the setup for a service.
 
+## Related projects
+
+- <https://github.com/cloud-gov/homebrew-cloudgov> - Contains Homebrew tap and formulas for cloud.gov, including [the templated formula for this package, `cg-manage-rds`](https://github.com/cloud-gov/homebrew-cloudgov/tree/main/Versions/cg-manage-rds)
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
