@@ -10,6 +10,7 @@ def main():
     Application to export, import, or clone a rds service instance from the aws-broker on Cloud.gov
     """
 
+
 ## CHECK
 @click.option(
     "-e",
@@ -44,7 +45,7 @@ def setup(service, key, app, engine):
     Setup app, key, and tunnel to a aws-rds service instance
 
     SERVICE name of the service instance
-    
+
     """
     click.echo(f"Setting up key, app and tunnel for {service}")
     creds, _ = commands.setup(service, engine, app, key)
@@ -76,7 +77,7 @@ def cleanup(
 
 
 ## Export
-@main.command("export",context_settings=CONTEXT_SETTINGS)
+@main.command("export", context_settings=CONTEXT_SETTINGS)
 @click.option(
     "-e",
     "--engine",
@@ -149,15 +150,15 @@ def export_db(
     cleanup,
 ):
     """
-        Export data and/or schema from SOURCE aws-rds service instance
+    Export data and/or schema from SOURCE aws-rds service instance
 
-        By default export will not preserve ownership,
-        and will attempt to create objects if they do not exist.
+    By default export will not preserve ownership,
+    and will attempt to create objects if they do not exist.
 
-        These defaults can be overridden with the --force-options flag.
+    These defaults can be overridden with the --force-options flag.
 
-        You can insert additional options and flags to the clients
-        using -o --options.
+    You can insert additional options and flags to the clients
+    using -o --options.
 
     """
     click.echo(f"Exporting {source} to file: {output_file}")
@@ -175,7 +176,7 @@ def export_db(
 
 
 ## Import
-@main.command("import",context_settings=CONTEXT_SETTINGS)
+@main.command("import", context_settings=CONTEXT_SETTINGS)
 @click.option(
     "-e",
     "--engine",
@@ -248,15 +249,15 @@ def import_db(
     cleanup,
 ):
     """
-        Import data and/or schema to DESTINATION rds service instance
+    Import data and/or schema to DESTINATION rds service instance
 
-        By default import will not preserve ownership,
-        and will attempt to create objects if they do not exist.
+    By default import will not preserve ownership,
+    and will attempt to create objects if they do not exist.
 
-        These defaults can be overridden with the --force-options flag.
+    These defaults can be overridden with the --force-options flag.
 
-        You can insert additional options and flags to the clients
-        using -o --options.
+    You can insert additional options and flags to the clients
+    using -o --options.
     """
     click.echo(f"Importing to {destination} from file: {input_file}")
     commands.import_to_svc(
@@ -337,15 +338,15 @@ def clone(
     app_name,
 ):
     """
-        Migrate data from one rds service to another rds service instance.
+    Migrate data from one rds service to another rds service instance.
 
-        By default export and import will not preserve ownership,
-        and will attempt to create objects if they do not exist.
+    By default export and import will not preserve ownership,
+    and will attempt to create objects if they do not exist.
 
-        These defaults can be overridden with the --force-options flag.
+    These defaults can be overridden with the --force-options flag.
 
-        You can insert additional options and flags to the clients
-        with either -b --boptions or -r --roptions.
+    You can insert additional options and flags to the clients
+    with either -b --boptions or -r --roptions.
 
     """
     click.echo(f"Cloning the database: {source} to {destination}")

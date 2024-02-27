@@ -21,15 +21,21 @@ There are three options for installation:
 brew install cloud-gov/cloudgov/cg-manage-rds
 ```
 
-2. Extract the bundled executable from the appropriate zipfile in the latest release:
+1. Extract the bundled executable from the appropriate zipfile in the latest release:
   
     <https://github.com/cloud-gov/cg-manage-rds/releases/latest>
 
-3. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment.
+1. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment.
 
 ```bash
 pip install git+https://github.com/cloud-gov/cg-manage-rds.git
 ```
+
+## Developing
+
+See [DEVELOPING.md](./DEVELOPING.md).
+
+> **VERY IMPORTANT NOTE**: If you add a new package dependency in `requirements.txt`, you **must make a corresponding PR to [the template for the `cg-manage-rds` Homebrew formula](https://github.com/cloud-gov/homebrew-cloudgov/blob/main/Versions/cg-manage-rds/cg-manage-rds.tmpl) to explicitly add the new dependency**. For example, see <https://github.com/cloud-gov/homebrew-cloudgov/pull/3>.
 
 ## Usage
 
@@ -203,6 +209,10 @@ There are several utility commands to assist working with services:
 `Setup` pushes an application into the current space, creates a service key to the provided service and then creates a ssh tunnel to the service via the installed app. Setup will output a connection string that can be used to connect to the service using a local client e.g. `psql` or `mysql`. Using setup alone allows you to perform other manual actions on services beyond export and import.
 
 `Cleanup` will teardown the setup for a service.
+
+## Related projects
+
+- <https://github.com/cloud-gov/homebrew-cloudgov> - Contains Homebrew tap and formulas for cloud.gov, including [the templated formula for this package, `cg-manage-rds`](https://github.com/cloud-gov/homebrew-cloudgov/tree/main/Versions/cg-manage-rds)
 
 ## Contributing
 
