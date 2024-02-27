@@ -21,15 +21,19 @@ There are three options for installation:
 brew install cloud-gov/cloudgov/cg-manage-rds
 ```
 
-2. Extract the bundled executable from the appropriate zipfile in the latest release:
+1. Extract the bundled executable from the appropriate zipfile in the latest release:
   
     <https://github.com/cloud-gov/cg-manage-rds/releases/latest>
 
-3. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment.
+1. Use the python package manager [pip](https://pip.pypa.io/en/stable/) to install the latest directly from source in a local python environment.
 
 ```bash
 pip install git+https://github.com/cloud-gov/cg-manage-rds.git
 ```
+
+## Developing
+
+See [DEVELOPING.md](./DEVELOPING.md).
 
 ## Usage
 
