@@ -8,6 +8,7 @@ setup(
     package_data={"cg_manage_rds": ["cf-app/manifest.yml", "cf-app/app.py"]},
     install_requires=[
         "Click",
+        "semver",
     ],
     entry_points={
         "console_scripts": [
